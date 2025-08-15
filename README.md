@@ -1,6 +1,10 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a simple todo list built with React and TypeScript using Vite.
+You can add new tasks, mark them as completed, and remove them from the list.
+
+The template provides a minimal setup to get React working in Vite with HMR
+and some ESLint rules.
 
 Currently, two official plugins are available:
 
