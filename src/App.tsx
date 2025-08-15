@@ -14,7 +14,6 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import './App.css'
-import OpenAI from 'openai'
 
 interface Task {
   id: number
@@ -68,25 +67,16 @@ function App() {
   }
 
   const suggestTask = async () => {
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      alert('OpenAI API key is not configured.')
-      return
-    }
     setLoadingAI(true)
     try {
-      const client = new OpenAI({
-        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true,
+      const resp = await fetch('http://localhost:3001/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'Give me one short to-do item.' }),
       })
-      const data = await client.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'You are a helpful to-do assistant.' },
-          { role: 'user', content: 'Give me one short to-do item.' },
-        ],
-        max_tokens: 30,
-      })
-      const suggestion = data.choices?.[0]?.message?.content?.trim()
+      if (!resp.ok) throw new Error('AI request failed')
+      const data = (await resp.json()) as { text?: string }
+      const suggestion = data.text?.trim()
       if (suggestion) setText(suggestion)
     } catch (err) {
       console.error(err)
