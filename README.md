@@ -31,11 +31,10 @@ export default {
 
 ## AI task suggestions
 
-This project can suggest new to-do items using OpenAI. To enable this feature, copy `.env.example` to `.env` and set your API key:
+This project can suggest new to-do items using OpenAI. The frontend calls a small local API server that keeps your key private.
 
-```bash
-cp .env.example .env
-# edit .env and add your key
-```
+1. Copy `.env.example` to `.env` and set your API key.
+2. Start the API server: `node server/index.js`
+3. Run the Vite dev server with `npm run dev`.
 
-The key is loaded from `VITE_OPENAI_API_KEY`.
+The server reads `OPENAI_API_KEY` from the environment and listens on `http://localhost:3001/api/ai`.
