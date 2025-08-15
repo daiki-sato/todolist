@@ -9,12 +9,12 @@ function App() {
   return (
     <div>
       <form onSubmit={(e) => e.preventDefault()}>
-        <input type="text" value={text} onChange={(e) => e.preventDefault()} />
         <input
-          type="submit"
-          value="追加"
+          type="text"
+          value={text}
           onChange={(e) => setText(e.target.value)}
         />
+        <input type="submit" value="追加" />
       </form>
 
       <p>{text}</p>
