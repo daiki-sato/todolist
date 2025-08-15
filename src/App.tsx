@@ -79,14 +79,14 @@ function App() {
       <div className="filters">
         <button
           type="button"
-          onClick={() => setFilter("all")} 
+          onClick={() => setFilter("all")}
           disabled={filter === "all"}
         >
           すべて
         </button>
         <button
           type="button"
-          onClick={() => setFilter("active")} 
+          onClick={() => setFilter("active")}
           disabled={filter === "active"}
         >
           未完了
@@ -126,3 +126,4 @@ function App() {
 }
 
 export default App;
+
