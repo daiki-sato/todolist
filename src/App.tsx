@@ -75,6 +75,7 @@ function App() {
           placeholder="タスクを追加"
         />
         <button type="submit">追加</button>
+        <input type="submit" value="追加" />
       </form>
       <div className="filters">
         <button
