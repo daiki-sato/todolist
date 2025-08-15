@@ -1,130 +1,191 @@
-import { useState, useEffect } from "react";
-import "./App.css";
+import { useState, useEffect } from 'react'
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import './App.css'
 
 interface Task {
-  id: number;
-  text: string;
-  completed: boolean;
+  id: number
+  text: string
+  completed: boolean
 }
 
 function App() {
-  const [text, setText] = useState("");
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const [text, setText] = useState('')
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
+  const [loadingAI, setLoadingAI] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem("tasks");
+    const stored = localStorage.getItem('tasks')
     if (stored) {
       try {
-        setTasks(JSON.parse(stored) as Task[]);
+        setTasks(JSON.parse(stored) as Task[])
       } catch {
-        setTasks([]);
+        setTasks([])
       }
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+  }, [tasks])
 
   const addTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!text.trim()) return;
-    const newTask: Task = { id: Date.now(), text, completed: false };
-    setTasks((prev) => [...prev, newTask]);
-    setText("");
-  };
+    e.preventDefault()
+    if (!text.trim()) return
+    const newTask: Task = { id: Date.now(), text, completed: false }
+    setTasks((prev) => [...prev, newTask])
+    setText('')
+  }
 
   const toggleTask = (id: number) => {
     setTasks((prev) =>
       prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
+        task.id === id ? { ...task, completed: !task.completed } : task,
+      ),
+    )
+  }
 
   const removeTask = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
-  };
+    setTasks((prev) => prev.filter((task) => task.id !== id))
+  }
 
   const clearCompleted = () => {
-    setTasks((prev) => prev.filter((task) => !task.completed));
-  };
+    setTasks((prev) => prev.filter((task) => !task.completed))
+  }
+
+  const suggestTask = async () => {
+    setLoadingAI(true)
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful to-do assistant.' },
+            { role: 'user', content: 'Give me one short to-do item.' },
+          ],
+          max_tokens: 30,
+        }),
+      })
+      const data = await res.json()
+      const suggestion = data.choices?.[0]?.message?.content?.trim()
+      if (suggestion) setText(suggestion)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingAI(false)
+    }
+  }
 
   const filteredTasks = tasks.filter((task) => {
-    if (filter === "active") return !task.completed;
-    if (filter === "completed") return task.completed;
-    return true;
-  });
+    if (filter === 'active') return !task.completed
+    if (filter === 'completed') return task.completed
+    return true
+  })
 
-  const completedCount = tasks.filter((task) => task.completed).length;
-  const points = completedCount * 10;
+  const completedCount = tasks.filter((task) => task.completed).length
+  const points = completedCount * 10
 
   return (
-    <div className="App">
-      <h1>ToDo List</h1>
-      <p>ポイント: {points}</p>
-      <p>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        ToDo List
+      </Typography>
+      <Typography>ポイント: {points}</Typography>
+      <Typography>
         完了: {completedCount} / {tasks.length}
-      </p>
-      <form onSubmit={addTask}>
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="タスクを追加"
-        />
-        <button type="submit">追加</button>
-        <input type="submit" value="追加" />
-      </form>
-      <div className="filters">
-        <button
-          type="button"
-          onClick={() => setFilter("all")}
-          disabled={filter === "all"}
+      </Typography>
+
+      <Box component="form" onSubmit={addTask} sx={{ mt: 2, mb: 2 }}>
+        <Stack direction="row" spacing={1}>
+          <TextField
+            fullWidth
+            value={text}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setText(e.target.value)
+            }
+            placeholder="タスクを追加"
+            size="small"
+          />
+          <Button type="submit" variant="contained">
+            追加
+          </Button>
+          <Button variant="outlined" onClick={suggestTask} disabled={loadingAI}>
+            AI
+          </Button>
+        </Stack>
+      </Box>
+
+      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <Button
+          variant={filter === 'all' ? 'contained' : 'outlined'}
+          onClick={() => setFilter('all')}
         >
           すべて
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter("active")}
-          disabled={filter === "active"}
+        </Button>
+        <Button
+          variant={filter === 'active' ? 'contained' : 'outlined'}
+          onClick={() => setFilter('active')}
         >
           未完了
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter("completed")}
-          disabled={filter === "completed"}
+        </Button>
+        <Button
+          variant={filter === 'completed' ? 'contained' : 'outlined'}
+          onClick={() => setFilter('completed')}
         >
           完了済み
-        </button>
-      </div>
-      <ul>
+        </Button>
+      </Stack>
+
+      <List>
         {filteredTasks.map((task) => (
-          <li key={task.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => toggleTask(task.id)}
-              />
-              <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
-                {task.text}
-              </span>
-            </label>
-            <button type="button" onClick={() => removeTask(task.id)}>削除</button>
-          </li>
+          <ListItem
+            key={task.id}
+            secondaryAction={
+              <IconButton edge="end" onClick={() => removeTask(task.id)}>
+                <DeleteIcon />
+              </IconButton>
+            }
+          >
+            <Checkbox
+              checked={task.completed}
+              onChange={() => toggleTask(task.id)}
+            />
+            <ListItemText
+              primary={task.text}
+              sx={{
+                textDecoration: task.completed ? 'line-through' : 'none',
+              }}
+            />
+          </ListItem>
         ))}
-      </ul>
+      </List>
+
       {completedCount > 0 && (
-        <button type="button" onClick={clearCompleted}>
+        <Button variant="outlined" color="error" onClick={clearCompleted}>
           完了を一括削除
-        </button>
+        </Button>
       )}
-    </div>
-  );
+    </Container>
+  )
 }
 
-export default App;
+export default App
 
