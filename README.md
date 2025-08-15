@@ -28,3 +28,14 @@ export default {
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+## AI task suggestions
+
+This project can suggest new to-do items using OpenAI. To enable this feature, copy `.env.example` to `.env` and set your API key:
+
+```bash
+cp .env.example .env
+# edit .env and add your key
+```
+
+The key is loaded from `VITE_OPENAI_API_KEY`.
